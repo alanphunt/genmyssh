@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>GenMySSH</title>
+		<meta name="author" content="Alan Hunt">
+		<meta name="keywords" content="SSH, keygen, public, private, key, generator, rsa">
+		<style>
+			@import url('https://fonts.googleapis.com/css?family=Raleway:200&display=swap');
+			*{
+				margin: 0;
+				padding: 0;
+				box-sizing: border-box;
+			}
+			
+			a{
+				color: #000;
+			}
+			
+			
+			html, body{
+				width: 100%;
+				height: 100%;
+				font-family: 'Raleway', sans-serif;
+			}	
+			
+			p{
+				font-size: 3rem;
+				text-align: center;
+				margin-bottom: 1rem;
+			}
+			
+			button{
+				outline: none;
+				background-color: cadetblue;
+				border: none;
+				padding: 1rem;
+				border-radius: 5px;
+				font-family: 'raleway', sans-serif;
+				color: white;
+				font-weight: bold;
+				cursor: pointer;	
+				transition: .2s ease;
+			}
+			
+			button:hover{
+				box-shadow: 0px 3px 6px #cccccc;
+			}
+			
+			#container{
+				width: 70%;
+				height: 100%;
+				margin: 0 auto;
+				display: flex;
+				flex-flow: column nowrap;
+				align-items: center;
+				justify-content: center;
+			}
+			
+			#hover{
+				border: 1px solid black;
+				border-radius: 5px;
+				height: 50%;
+				width: 100%;
+				overflow: auto;
+				word-break: break-all;
+				padding: 1rem;
+			}
+		</style>
+	</head>
+	<body>
+<span>Made w/ luv by <a href="https://www.alanphunt.com" target="_blank">Alan Hunt</a></span>
+		<div id="container">
+			<p>Move your mouse in the box to generate your code <span>in 5..</span></p>
+			<div id="hover"></div>
+			<p id="cont"></p>
+		</div>
+		
+		<script>
+			var mousePos = [];
+			const div = document.querySelector("#hover");
+			
+			
+			const countdown = () =>{
+				let x = document.querySelector("p span");
+				let c = 4;
+				const y = setInterval(function(){
+					x.innerHTML = 'in ' + c + '..';
+					c--;
+					
+					if( c == -1 ){ 
+						x.innerHTML = "";
+						clearInterval(y);
+						output();
+						cont();
+					}
+				},1000);
+			};
+
+			const cont = () =>{
+				var x = document.querySelector("#cont");
+				let c = 5;
+				x.innerHTML = "Continue for " + c + '..';
+				let int = setInterval(function(){
+					x.innerHTML = "Continue for " + c + '..';
+					c--;
+					if(c == -1){
+						clearInterval(int);
+						x.innerHTML = "";
+					}
+				}, 1000);
+			};
+			
+			const handleMouseMove = (event) =>{
+				if(div.innerHTML.charAt(0) != 'A')
+					div.innerHTML = "A";
+				else
+					div.innerHTML += 'H';
+				
+				mousePos.push({
+					'x': event.pageX,
+					'y': event.pageY
+				});
+			}
+
+			const output = () =>{
+				div.addEventListener("mouseover", begin);
+				var dastring = "";
+				var title = document.querySelector("div p");
+				title.innerHTML = "Move it!";
+				setTimeout(function(){
+					mousePos.forEach(function(item){
+						dastring += item.x;
+						dastring += item.y;
+				});
+					var key = rando(dastring);
+					var strarr = [];
+					if(key.length < div.innerHTML.length)
+						div.innerHTML = div.innerHTML.substring(0,key.length); 
+					
+					for(var i = 0; i <= key.length; i++){
+						strarr.push(key.substring(0,i) + div.innerHTML.substring(i+1));
+					}
+
+					let count = 0;
+					title.innerHTML = "Generating code..";
+					var yo = setInterval(function(){							
+						if(strarr[count].length == 1)
+							div.innerHTML += strarr[count];
+						else
+							div.innerHTML = strarr[count];
+
+						count++;
+
+						if(count == strarr.length){
+							clearInterval(yo);
+							title.innerHTML = "Done!";
+							let par = document.querySelector("#container");
+							
+							let but = document.createElement("button");
+							but.innerHTML = "Copy Code";
+							but.setAttribute("type", "button");
+							but.addEventListener("click", copy);
+							but.style.marginRight = "1rem";
+							
+							let newbut = document.createElement("button");
+							newbut.innerHTML = "Start Over";
+							but.setAttribute("type", "button");
+							newbut.addEventListener("click", function(){location.reload();});
+							newbut.style.backgroundColor = "brown";
+							
+							let wrapper = document.createElement("div");
+							wrapper.appendChild(but);
+							wrapper.appendChild(newbut);
+							par.appendChild(wrapper);
+						}
+					},10);
+					
+					console.log("code: " + dastring);
+					console.log("new random " + rando(dastring));
+					killit();
+					setTimeout(function(){
+
+					}, 3000);
+			}, 6000);
+			};
+
+			const begin = () =>{
+				if(document.querySelector("#cont").innerHTML != "")
+					document.onmousemove = handleMouseMove;
+			};
+
+			const killit = () => {
+					document.onmousemove -= handleMouseMove;
+			};
+			
+			const rando = (strang) => {
+				//let s = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+				let s = ' !#$%&*+,-./0123456789:;=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ])^_`abcdefghijklmnopqrstuvwxyz}|~';
+				let n = '';
+				let lesser = 800;
+				if(strang.length < lesser)
+					lesser = strang.length;
+				
+				for(let i = 0; i < lesser; i+=2){
+					let a = parseInt(strang.substring(i,i+2));
+					
+					//if(a < 94)
+					if(a < 88)
+						n += s.charAt(a);
+					else
+						n += s.charAt(a-12);
+						//n += s.charAt(a-5);
+				}
+				
+				return n;
+			}
+			
+			const copy = (event) => {
+				event.target.innerHTML = "Copied!";
+				event.target.style.backgroundColor = "blueviolet";
+				let x = document.createElement("textarea");
+				x.textContent = div.innerHTML;
+				x.setAttribute("type", "hidden");
+				document.body.appendChild(x);
+				console.log(x);
+				x.select();
+				document.execCommand("copy");
+				document.body.removeChild(x);
+				setTimeout(function(){
+					event.target.innerHTML = "Copy Code";
+					event.target.style.backgroundColor = "cadetblue";
+									 }, 1500);
+			}
+			
+			div.addEventListener("mouseout", killit);
+			countdown();
+
+		</script>
+	</body>
+</html>
