@@ -16,17 +16,16 @@
 				color: #000;
 			}
 			
-			
 			html, body{
 				width: 100%;
 				height: 100%;
 				font-family: 'Raleway', sans-serif;
-			}	
+			}
 			
-			body > span {
+			body > span{
 				position: absolute;
 				top: 0;
-				left: 0;
+    				left: 0;
 			}
 			
 			p{
@@ -46,6 +45,10 @@
 				font-weight: bold;
 				cursor: pointer;	
 				transition: .2s ease;
+			}
+			
+			button:not(last-child){
+				margin-right: 1rem;
 			}
 			
 			button:hover{
@@ -74,7 +77,7 @@
 		</style>
 	</head>
 	<body>
-<span>Made w/ luv by <a href="https://www.alanphunt.com" target="_blank">Alan Hunt</a></span>
+		<span>Made w/ luv by <a href="https://www.alanphunt.com" target="_blank">Alan Hunt</a></span>
 		<div id="container">
 			<p>Move your mouse in the box to generate your code <span>in 5..</span></p>
 			<div id="hover"></div>
@@ -84,7 +87,6 @@
 		<script>
 			var mousePos = [];
 			const div = document.querySelector("#hover");
-			
 			
 			const countdown = () =>{
 				let x = document.querySelector("p span");
@@ -126,7 +128,7 @@
 					'x': event.pageX,
 					'y': event.pageY
 				});
-			}
+			};
 
 			const output = () =>{
 				div.addEventListener("mouseover", begin);
@@ -137,7 +139,7 @@
 					mousePos.forEach(function(item){
 						dastring += item.x;
 						dastring += item.y;
-				});
+					});
 					var key = rando(dastring);
 					var strarr = [];
 					if(key.length < div.innerHTML.length)
@@ -162,32 +164,35 @@
 							title.innerHTML = "Done!";
 							let par = document.querySelector("#container");
 							
-							let but = document.createElement("button");
-							but.innerHTML = "Copy Code";
-							but.setAttribute("type", "button");
-							but.addEventListener("click", copy);
-							but.style.marginRight = "1rem";
+							let button = document.createElement("button");
+							button.innerHTML = "Copy Whole Key";
+							button.setAttribute("type", "button");
+							button.addEventListener("click", copy);
 							
-							let newbut = document.createElement("button");
-							newbut.innerHTML = "Start Over";
-							but.setAttribute("type", "button");
-							newbut.addEventListener("click", function(){location.reload();});
-							newbut.style.backgroundColor = "brown";
+							let passwordbutton = document.createElement("button");
+							passwordbutton.innerHTML = "Copy Partial Password";
+							passwordbutton.setAttribute("type", "button");
+							passwordbutton.addEventListener("click", copy);
+							passwordbutton.style.backgroundColor = "slategray";
 							
+							let newbutton = document.createElement("button");
+							newbutton.innerHTML = "Start Over";
+							newbutton.setAttribute("type", "button");
+							newbutton.addEventListener("click", function(){location.reload();});
+							newbutton.style.backgroundColor = "brown";
+
 							let wrapper = document.createElement("div");
-							wrapper.appendChild(but);
-							wrapper.appendChild(newbut);
+							wrapper.appendChild(button);
+							wrapper.appendChild(passwordbutton);
+							wrapper.appendChild(newbutton);
 							par.appendChild(wrapper);
 						}
 					},10);
 					
-					console.log("code: " + dastring);
-					console.log("new random " + rando(dastring));
+					console.log("X,Y coordinates: " + dastring);
+					console.log("new random key: \n" + key);
 					killit();
-					setTimeout(function(){
-
-					}, 3000);
-			}, 6000);
+				}, 6000);
 			};
 
 			const begin = () =>{
@@ -200,43 +205,65 @@
 			};
 			
 			const rando = (strang) => {
-				//let s = ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-				let s = ' !#$%&*+,-./0123456789:;=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ])^_`abcdefghijklmnopqrstuvwxyz}|~';
-				let n = '';
+				let chars = '!#$%&*+,-./0123456789:;=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ])^_abcdefghijklmnopqrstuvwxyz}|~';
+				let varied = shuffleArray(Array.from(chars));
+				console.log("varied char array: \n" + varied);
+				let code = '';
 				let lesser = 800;
+				
 				if(strang.length < lesser)
 					lesser = strang.length;
 				
-				for(let i = 0; i < lesser; i+=2){
-					let a = parseInt(strang.substring(i,i+2));
-					
-					//if(a < 94)
-					if(a < 88)
-						n += s.charAt(a);
-					else
-						n += s.charAt(a-12);
-						//n += s.charAt(a-5);
-				}
 				
-				return n;
-			}
+				for(let i = 0; i < lesser; i+=2){
+					let twoDigits = parseInt(strang.substring(i,i+2));
+
+					if(twoDigits < varied.length)
+						code += varied[twoDigits];
+					else{
+						let min = twoDigits-(varied.length+1);
+						let twoDigitOutOfBoundsHandler = Math.floor(Math.random() * (varied.length - min)) + min;
+						code += varied[twoDigitOutOfBoundsHandler];
+					}
+				}
+				return code;
+			};
 			
 			const copy = (event) => {
+				let type = event.target.innerHTML;
+				let bg = event.target.style.backgroundColor;
 				event.target.innerHTML = "Copied!";
 				event.target.style.backgroundColor = "blueviolet";
 				let x = document.createElement("textarea");
-				x.textContent = div.innerHTML;
+				
+				if(type.includes("Key"))
+					x.textContent = div.innerHTML;
+				else{
+					for(let i = 0; i < 16; i++){
+						x.textContent += div.innerHTML.charAt(Math.floor(Math.random() * div.innerHTML.length));
+					}
+				}
+				
 				x.setAttribute("type", "hidden");
 				document.body.appendChild(x);
-				console.log(x);
 				x.select();
 				document.execCommand("copy");
 				document.body.removeChild(x);
 				setTimeout(function(){
-					event.target.innerHTML = "Copy Code";
-					event.target.style.backgroundColor = "cadetblue";
+					event.target.innerHTML = type;
+					event.target.style.backgroundColor = bg;
 									 }, 1500);
-			}
+			};
+			
+			const shuffleArray = (array) => {
+    			for (let i = array.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+        			[array[i], array[j]] = [array[j], array[i]];
+    			}
+				
+				return array;
+			};
+			
 			
 			div.addEventListener("mouseout", killit);
 			countdown();
